@@ -102,7 +102,7 @@ class Pipeline:
     # ── 简报流程 ────────────────────────────────────────────
     def briefing(self, date_str: str | None = None) -> tuple[object, dict]:
         digest = collect_digest(self.store, date_str)
-        home_url = self.settings.wiki_root_node
+        home_url = self.settings.wiki_home_url or self.settings.wiki_root_node
         card = build_card(digest, wiki_home_url=home_url)
         return digest, card
 

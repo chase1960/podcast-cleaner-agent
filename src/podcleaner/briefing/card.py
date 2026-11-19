@@ -55,10 +55,9 @@ def build_card(digest: Digest, wiki_home_url: str = "") -> dict:
         "schema": "2.0",
         "config": {"update_multi": True, "width_mode": "default"},
         "header": {
-            "title": {"tag": "plain_text", "content": "🎙 播客早报"},
-            "subtitle": {"tag": "plain_text", "content": f"{digest.date} · 昨日收听回顾"},
+            "title": {"tag": "plain_text", "content": "📻 昨日播客回顾"},
+            "subtitle": {"tag": "plain_text", "content": f"{digest.date} · 昨日新增 {digest.total} 期"},
             "template": "blue",
-            "icon": {"tag": "standard_icon", "token": "podcast_colorful"},
         },
         "body": {"direction": "vertical", "padding": "12px 12px 20px 12px", "elements": elements},
     }

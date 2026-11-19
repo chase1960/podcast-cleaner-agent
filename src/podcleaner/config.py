@@ -28,6 +28,7 @@ class Settings:
         # 飞书
         self.wiki_space_id = env.get("PODCLEANER_WIKI_SPACE_ID", "")
         self.wiki_root_node = env.get("PODCLEANER_WIKI_ROOT_NODE", "")
+        self.wiki_home_url = env.get("PODCLEANER_WIKI_HOME_URL", "")
         self.lark_cli = env.get("PODCLEANER_LARK_CLI", "lark-cli")
 
         # 抓取

@@ -26,15 +26,23 @@ class WikiStore:
         self._category_nodes: dict[str, str] = {}
 
     # ── CLI 封装 ────────────────────────────────────────────
-    def _run(self, *args: str) -> dict:
+    def _run(self, *args: str, cwd: Path | None = None) -> dict:
         cmd = [self.settings.lark_cli, *args, "--as", "user", "--format", "json"]
-        proc = subprocess.run(cmd, capture_output=True, text=True, timeout=60)
+        proc = subprocess.run(
+            cmd, capture_output=True, text=True, timeout=60, cwd=str(cwd) if cwd else None
+        )
         if proc.returncode != 0:
             raise RuntimeError(f"lark-cli 调用失败：{proc.stderr or proc.stdout}")
         try:
-            return json.loads(proc.stdout)
+            envelope = json.loads(proc.stdout)
         except json.JSONDecodeError:
             return {"raw": proc.stdout}
+        if envelope.get("ok") is False:
+            err = envelope.get("error", {})
+            raise RuntimeError(
+                f"lark-cli 返回错误：{err.get('message') or err}（code={err.get('code')}）"
+            )
+        return envelope.get("data", envelope)
 
     # ── 索引镜像 ────────────────────────────────────────────
     def _read_index(self) -> list[dict]:
@@ -59,23 +67,22 @@ class WikiStore:
         if not self.settings.wiki_space_id:
             raise RuntimeError("未配置 PODCLEANER_WIKI_SPACE_ID")
 
-        resp = self._run(
-            "wiki", "+node-list", "--space-id", self.settings.wiki_space_id
-        )
-        for node in resp.get("data", {}).get("items", []):
+        resp = self._run("wiki", "+node-list", "--space-id", self.settings.wiki_space_id)
+        for node in resp.get("nodes", []):
             self._category_nodes[node.get("title", "")] = node.get("node_token", "")
 
         for cat in self.settings.category_names:
-            if cat not in self._category_nodes:
-                create = self._run(
-                    "wiki", "+node-create",
-                    "--space-id", self.settings.wiki_space_id,
-                    "--parent-node-token", self.settings.wiki_root_node or "",
-                    "--title", cat,
-                    "--obj-type", "docx",
-                )
-                data = create.get("data", {})
-                self._category_nodes[cat] = data.get("node_token", "")
+            if cat in self._category_nodes and self._category_nodes[cat]:
+                continue
+            # 分类节点建在空间根目录：根伪节点不能作为 parent-node-token 传入，
+            # 否则会触发 131007；省略父节点即落在根目录。
+            create = self._run(
+                "wiki", "+node-create",
+                "--space-id", self.settings.wiki_space_id,
+                "--title", cat,
+                "--obj-type", "docx",
+            )
+            self._category_nodes[cat] = create.get("node_token", "")
 
     # ── 写入笔记 ────────────────────────────────────────────
     def save(self, episode: Episode) -> None:
@@ -88,14 +95,19 @@ class WikiStore:
             "--title", episode.display_title,
             "--obj-type", "docx",
         )
-        data = create.get("data", {})
+        data = create
         episode.note_token = data.get("node_token", "")
-        episode.note_url = f"/wiki/{episode.note_token}" if episode.note_token else ""
+        episode.note_url = data.get("url", "") or (
+            f"/wiki/{episode.note_token}" if episode.note_token else ""
+        )
 
         markdown = LocalStore._render_markdown(episode)
         self._write_doc(data.get("obj_token", ""), markdown)
 
-        items = [x for x in self._read_index() if Episode.from_dict(x).signature() != episode.signature()]
+        items = [
+            x for x in self._read_index()
+            if Episode.from_dict(x).signature() != episode.signature()
+        ]
         items.append(episode.to_dict())
         self._write_index(items)
 
@@ -127,9 +139,18 @@ class WikiStore:
         if not obj_token:
             return
         action = "append" if append else "overwrite"
-        self._run(
-            "docs", "+update",
-            "--doc-token", obj_token,
-            "--markdown", markdown,
-            "--mode", action,
-        )
+        # @file 只接受 cwd 下的相对路径：临时文件放在索引目录，命令在该目录执行。
+        tmp = self.index_file.parent / f".doc_write_{obj_token}.md"
+        try:
+            tmp.write_text(markdown, encoding="utf-8")
+            self._run(
+                "docs", "+update",
+                "--doc", obj_token,
+                "--command", action,
+                "--doc-format", "markdown",
+                "--content", f"@./{tmp.name}",
+                cwd=self.index_file.parent,
+            )
+        finally:
+            if tmp.exists():
+                tmp.unlink()

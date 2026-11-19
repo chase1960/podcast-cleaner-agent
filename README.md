@@ -74,7 +74,8 @@ python -m podcleaner.cli tree
 |---|---|
 | `PODCLEANER_LLM_BASE_URL` / `PODCLEANER_LLM_API_KEY` / `PODCLEANER_LLM_MODEL` | OpenAI 兼容的 LLM 接口 |
 | `PODCLEANER_STORE` | `wiki`（飞书知识库，默认）或 `local`（本地 Markdown） |
-| `PODCLEANER_WIKI_SPACE_ID` / `PODCLEANER_WIKI_ROOT_NODE` | 飞书 Wiki 空间与根节点 |
+| `PODCLEANER_WIKI_SPACE_ID` | 飞书 Wiki 空间 ID（store=wiki 时必填） |
+| `PODCLEANER_WIKI_HOME_URL` | 知识库首页链接，用于简报卡片的入口跳转 |
 | `PODCLEANER_INDEX_FILE` | 本地索引文件路径，用于关联比对与简报取数 |
 
 > 飞书写入默认通过本机 `lark-cli`（用户身份）执行；`wiki.py` 里的命令可按你的部署环境替换为 OpenAPI 直连。

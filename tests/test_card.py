@@ -27,7 +27,7 @@ def test_empty_digest_card():
     digest = collect_digest(FakeStore([]), date_str="2026-11-18")
     card = build_card(digest)
     assert card["schema"] == "2.0"
-    assert card["header"]["title"]["content"] == "🎙 播客早报"
+    assert card["header"]["title"]["content"] == "📻 昨日播客回顾"
     assert digest.total == 0
 
 
