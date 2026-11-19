@@ -1,0 +1,22 @@
+# 环境与密钥
+.env
+*.env
+!.env.example
+
+# 本地索引与产物
+.podcleaner/
+notes/
+*.jsonl
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+dist/
+build/
+
+# IDE
+.idea/
+.vscode/

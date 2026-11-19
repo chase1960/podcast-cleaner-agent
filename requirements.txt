@@ -1,0 +1,7 @@
+feedparser>=6.0.10
+requests>=2.31.0
+PyYAML>=6.0
+openai>=1.30.0
+
+# 可选：音频转写回退，未启用 ASR 时可不装
+faster-whisper>=1.0.0; python_version>="3.10"

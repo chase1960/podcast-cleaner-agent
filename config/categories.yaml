@@ -1,0 +1,23 @@
+# 知识树分类 taxonomy
+# name 会作为 Wiki 目录名；keywords 用于无 LLM 时的粗分类兜底
+taxonomy:
+  - key: tech
+    name: 科技与互联网
+    keywords: [AI, 大模型, 人工智能, 编程, 互联网, 产品, 技术, 芯片, 软件, 算法, 机器人]
+  - key: business
+    name: 商业与职场
+    keywords: [创业, 商业, 公司, 职场, 投资, 营销, 管理, 经济, 金融, 消费, 增长]
+  - key: life
+    name: 生活与情感
+    keywords: [情感, 生活, 心理, 婚姻, 家庭, 旅行, 美食, 成长, 亲密关系, 情绪]
+  - key: humanities
+    name: 人文与社科
+    keywords: [历史, 哲学, 文化, 社会, 艺术, 读书, 人物, 教育, 城市, 法律]
+  - key: other
+    name: 其他
+    keywords: []
+
+default_category: 其他
+
+# 每条笔记最多关联的历史条目数
+max_related_per_episode: 3

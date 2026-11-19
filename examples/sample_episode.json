@@ -1,0 +1,30 @@
+{
+  "podcast_name": "示例播客",
+  "episode_title": "第 12 期：AI 时代的普通人机会",
+  "url": "https://www.xiaoyuzhoufm.com/episode/example",
+  "platform": "xiaoyuzhou",
+  "listened_at": "2026-11-18",
+  "category": "科技与互联网",
+  "summary": "两位主持人讨论大模型普及后，个体如何把工具能力转化为自己的产品与内容优势，强调动手实践胜过观望。",
+  "key_points": [
+    "工具迭代很快，但真正的壁垒是持续输出与领域判断",
+    "普通人可以从自己熟悉的场景切入，用 AI 放大已有经验",
+    "观望期最容易被拉开差距，先做出最小可用作品再迭代"
+  ],
+  "quotes": [
+    "不要等工具完美，先把你的问题讲清楚。"
+  ],
+  "tags": ["大模型", "个体成长", "产品方法论"],
+  "related": [
+    {
+      "title": "示例播客｜第 9 期：内容创作的长期主义",
+      "url": "/wiki/old-note-token",
+      "reason": "都在讨论持续输出对个人壁垒的价值，观点互相印证",
+      "relation_type": "echo"
+    }
+  ],
+  "source_type": "shownotes",
+  "raw_content": "",
+  "note_url": "/wiki/sample-note-token",
+  "note_token": "sample-note-token"
+}
