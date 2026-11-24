@@ -45,6 +45,20 @@ class Settings:
         self.default_category = taxonomy.get("default_category", "其他")
         self.max_related = int(taxonomy.get("max_related_per_episode", 3))
 
+        # 个人沉淀层上限与开关（yaml 默认值，env 可覆盖）
+        self.max_aha = int(env.get("PODCLEANER_MAX_AHA", taxonomy.get("max_aha_per_episode", 3)))
+        self.max_open_questions = int(
+            env.get("PODCLEANER_MAX_OPEN_QUESTIONS", taxonomy.get("max_open_questions", 3))
+        )
+        self.max_next_steps = int(
+            env.get("PODCLEANER_MAX_NEXT_STEPS", taxonomy.get("max_next_steps", 3))
+        )
+        self.enable_threads = env.get("PODCLEANER_ENABLE_THREADS", "").lower() not in (
+            "0",
+            "false",
+            "no",
+        ) and bool(taxonomy.get("enable_threads", True))
+
     @staticmethod
     def _load_taxonomy() -> dict[str, Any]:
         if not CONFIG_FILE.exists():
