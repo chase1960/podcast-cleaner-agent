@@ -1,6 +1,7 @@
 """把 Digest 渲染成飞书 Card 2.0 交互卡片。
 
-设计：单焦点标题区 → 指标概览 → 按分类分组的条目卡片 → 关联脉络 → 知识库入口。
+设计：单焦点标题区 → 指标概览 → 按分类分组的条目（含啊哈时刻 / 待解问题 / 深耕方向）
+→ 关联脉络 → 主题线索 → 知识指引 → 知识库入口。
 配色以 header 蓝色为主，正文用默认字号，次要信息用 grey。
 """
 
@@ -28,7 +29,7 @@ def build_card(digest: Digest, wiki_home_url: str = "") -> dict:
         elements.append(
             {
                 "tag": "markdown",
-                "content": "昨日没有新增播客笔记。通勤路上听到好节目，把名字发给我即可入库。",
+                "content": "<font color='grey'>昨天没有新的播客笔记。通勤路上听到好节目，把名字发给我即可入库。</font>",
             }
         )
     else:
@@ -41,6 +42,14 @@ def build_card(digest: Digest, wiki_home_url: str = "") -> dict:
         elements.append(
             {"tag": "markdown", "content": "**🔗 关联脉络**\n" + "\n".join(relation_lines)}
         )
+
+    thread_blocks = _thread_blocks(digest)
+    elements.extend(thread_blocks)
+
+    guide_block = _guide_block(digest)
+    if guide_block is not None:
+        elements.append({"tag": "hr"})
+        elements.append(guide_block)
 
     if wiki_home_url:
         elements.append(
@@ -102,13 +111,31 @@ def _category_block(category: str, episodes: list[Episode]) -> dict:
 
 
 def _episode_markdown(episode: Episode) -> str:
-    lines = [f"**{episode.display_title}**"]
+    title = episode.display_title
+    if episode.note_url:
+        title = f"[{title}]({episode.note_url})"
+    lines = [f"**{title}**"]
+
     if episode.summary:
         lines.append(episode.summary)
     if episode.key_points:
         lines.append("\n".join(f"- {point}" for point in episode.key_points[:3]))
     if episode.quotes:
         lines.append("> " + " / ".join(episode.quotes[:2]))
+
+    for moment in episode.aha_moments[:2]:
+        if moment.insight:
+            lines.append(f"💡 **啊哈**：{moment.trigger} → {moment.insight}")
+        elif moment.trigger:
+            lines.append(f"💡 **啊哈**：{moment.trigger}")
+
+    for question in episode.open_questions[:2]:
+        lines.append(f"❓ **待解**：{question.question}")
+
+    for step in episode.next_steps[:2]:
+        tail = " · ".join(x for x in (step.direction, f"优先级 {step.priority}") if x)
+        lines.append(f"🧭 **深耕**：{step.action}" + (f"（{tail}）" if tail else ""))
+
     if episode.tags:
         lines.append("<font color='grey'>#" + " #".join(episode.tags) + "</font>")
     if episode.related:
@@ -123,3 +150,30 @@ def _relation_lines(digest: Digest) -> list[str]:
         for ref in episode.related:
             lines.append(f"- **{episode.display_title}** ↔ {ref.title}：{ref.reason}")
     return lines[:6]
+
+
+def _thread_blocks(digest: Digest) -> list[dict]:
+    blocks: list[dict] = []
+    for thread in digest.threads:
+        body = [f"**🧵 {thread.title}**"]
+        if thread.summary:
+            body.append(thread.summary)
+        if thread.members:
+            body.append("<font color='grey'>线索条目：" + "、".join(thread.members[:5]) + "</font>")
+        for question in thread.open_questions[:3]:
+            body.append(f"❓ {question}")
+        blocks.append({"tag": "markdown", "content": "\n".join(body)})
+    return blocks
+
+
+def _guide_block(digest: Digest) -> dict | None:
+    """聚合昨日条目的待解问题与下一步深耕方向，形成「知识指引」。"""
+    lines: list[str] = ["**🧭 知识指引**"]
+    for question in digest.open_questions[:4]:
+        lines.append(f"- ❓ {question}")
+    for episode in digest.next_steps:
+        for step in episode.next_steps[:2]:
+            lines.append(f"- 🧭 {step.action}（{episode.display_title}）")
+    if len(lines) == 1:
+        return None
+    return {"tag": "markdown", "content": "\n".join(lines[:8])}

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import logging
 
-from .analyzer import LLMClient, Linker, analyze_episode
+from .analyzer import LLMClient, Linker, analyze_episode, build_threads
 from .briefing import build_card, collect_digest
 from .config import Settings, get_settings
 from .fetcher import (
@@ -101,10 +101,19 @@ class Pipeline:
 
     # ── 简报流程 ────────────────────────────────────────────
     def briefing(self, date_str: str | None = None) -> tuple[object, dict]:
-        digest = collect_digest(self.store, date_str)
+        all_episodes = self.store.list_episodes()
+        threads = build_threads(all_episodes, self.settings, self.llm)
+        digest = collect_digest(self.store, date_str, threads=threads)
         home_url = self.settings.wiki_home_url or self.settings.wiki_root_node
         card = build_card(digest, wiki_home_url=home_url)
         return digest, card
 
     def tree(self) -> list[Episode]:
         return self.store.list_episodes()
+
+    def list_insights(self) -> list[Episode]:
+        """返回带有个人沉淀（啊哈 / 启发 / 问题 / 深耕）的条目，供跨期回顾。"""
+        return [
+            e for e in self.store.list_episodes()
+            if e.aha_moments or e.insights or e.open_questions or e.next_steps
+        ]

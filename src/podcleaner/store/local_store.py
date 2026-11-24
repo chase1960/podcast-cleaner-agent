@@ -100,6 +100,29 @@ class LocalStore:
         lines += [f"- {point}" for point in episode.key_points] or ["- （无）"]
         if episode.quotes:
             lines += ["", "## 金句"] + [f"> {q}" for q in episode.quotes]
+
+        if episode.aha_moments:
+            lines += ["", "## 💡 啊哈时刻"]
+            for moment in episode.aha_moments:
+                body = moment.insight or "（待补充个人顿悟）"
+                lead = f"{moment.trigger} —— {body}" if moment.trigger else body
+                tag_suffix = f"（{', '.join(moment.tags)}）" if moment.tags else ""
+                lines.append(f"- {lead}{tag_suffix}")
+        if episode.insights:
+            lines += ["", "## 个人启发"]
+            for insight in episode.insights:
+                lines.append(f"- {insight.text}")
+        if episode.open_questions:
+            lines += ["", "## ❓ 待深挖问题"]
+            for question in episode.open_questions:
+                extra = f" —— {question.why_it_matters}" if question.why_it_matters else ""
+                lines.append(f"- {question.question}{extra}（{question.status}）")
+        if episode.next_steps:
+            lines += ["", "## 🧭 下一步深耕"]
+            for step in episode.next_steps:
+                meta = " · ".join(x for x in (step.direction, f"优先级 {step.priority}") if x)
+                lines.append(f"- {step.action}" + (f"（{meta}）" if meta else ""))
+
         if episode.tags:
             lines += ["", "## 标签", "、".join(episode.tags)]
         if episode.related:
