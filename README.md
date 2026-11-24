@@ -2,6 +2,13 @@
 
 把通勤路上听的播客，自动变成一篇结构清晰的笔记，并按主题汇入你的**个人知识树**；每天早上推送一份可读的昨日回顾简报。
 
+## 在线演示
+
+- [打开可交互流程演示](https://htmlpreview.github.io/?https://github.com/chase1960/podcast-cleaner-agent/main/docs/flow.html)：逐步查看取稿 → 提炼 → 关联 → 脉络 → 入树 → 播报的完整管线，以及样例简报卡片。
+- [演示页源码](https://github.com/chase1960/podcast-cleaner-agent/blob/main/docs/flow.html)：单文件、自包含，无外部依赖。
+
+> 若在仓库 **Settings → Pages** 中将 Source 设为 GitHub Actions，本仓库会经 `.github/workflows/pages.yml` 发布到 `https://chase1960.github.io/podcast-cleaner-agent/`；未开启前可使用上面的预览链接。
+
 ## 这是什么
 
 一个可独立运行的 Python Agent 框架。你告诉它播客名称（可选单集标题或链接），它会：
@@ -108,6 +115,8 @@ podcast-cleaner-agent/
 │   ├── briefing/                # 昨日汇总 + 卡片渲染
 │   ├── pipeline.py             # 编排：取稿 → 提炼 → 关联 → 入树 → 脉络
 │   └── cli.py                   # 命令行入口（ingest / briefing / tree / insights）
+├── docs/
+│   └── flow.html               # 可交互流程演示页（静态、自包含）
 ├── tests/
 └── examples/
 ```
