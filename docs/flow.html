@@ -1,1 +1,410 @@
-"<!doctype html>\n<html lang=\"zh-CN\">\n<head>\n<meta charset=\"utf-8\">\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n<title>播客清洗与知识树 Agent · 流程演示</title>\n<style>\n  :root {\n    --bg: #f7f8fa;\n    --panel: #ffffff;\n    --ink: #16202e;\n    --ink-2: #4a5566;\n    --muted: #7a8595;\n    --line: #e3e8ef;\n    --blue: #2563c9;\n    --blue-soft: #eaf1fc;\n    --teal: #0e7c86;\n    --orange: #c76a2e;\n    --orange-soft: #fbeee4;\n    --purple: #7a5ea6;\n    --purple-soft: #f0ecf7;\n    --green: #2e8b6f;\n    --green-soft: #e8f3ee;\n    --radius: 14px;\n    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;\n  }\n  * { box-sizing: border-box; }\n  html, body { margin: 0; padding: 0; }\n  body {\n    background: var(--bg);\n    color: var(--ink);\n    font-family: -apple-system, BlinkMacSystemFont, \"PingFang SC\", \"Hiragino Sans GB\",\n      \"Microsoft YaHei\", \"Segoe UI\", sans-serif;\n    line-height: 1.6;\n    -webkit-text-size-adjust: 100%;\n  }\n  .wrap { max-width: 920px; margin: 0 auto; padding: 0 20px; }\n\n  /* ── Hero ─────────────────────────────── */\n  header.hero { padding: 56px 0 28px; }\n  .eyebrow {\n    font-family: var(--mono);\n    font-size: 13px;\n    letter-spacing: 0.08em;\n    color: var(--blue);\n    margin-bottom: 14px;\n  }\n  h1 { font-size: clamp(26px, 4vw, 38px); line-height: 1.25; margin: 0 0 14px; font-weight: 700; }\n  .lede { font-size: 16px; color: var(--ink-2); max-width: 640px; margin: 0 0 24px; }\n  .actions { display: flex; flex-wrap: wrap; gap: 12px; }\n  .btn {\n    display: inline-flex; align-items: center; gap: 8px;\n    border-radius: 10px; padding: 11px 16px; font-size: 15px;\n    text-decoration: none; cursor: pointer; border: 1px solid transparent;\n  }\n  .btn-primary { background: var(--blue); color: #fff; }\n  .btn-primary:hover { background: #1d52a8; }\n  .btn-ghost { background: var(--panel); color: var(--ink); border-color: var(--line); }\n  .btn-ghost:hover { border-color: var(--muted); }\n  .btn svg { width: 16px; height: 16px; }\n\n  /* ── Section ───────────────────────────── */\n  section { padding: 28px 0; }\n  h2 { font-size: 21px; margin: 0 0 6px; }\n  .section-note { color: var(--muted); font-size: 14px; margin: 0 0 22px; }\n\n  /* ── Pipeline ──────────────────────────── */\n  .pipeline { position: relative; }\n  .step {\n    background: var(--panel);\n    border: 1px solid var(--line);\n    border-radius: var(--radius);\n    margin-bottom: 14px;\n    overflow: hidden;\n  }\n  .step-head {\n    display: grid;\n    grid-template-columns: 46px 1fr auto;\n    gap: 14px; align-items: center;\n    padding: 18px 20px; cursor: pointer; user-select: none;\n  }\n  .step-head:hover { background: #fafbfc; }\n  .step-num {\n    font-family: var(--mono); font-size: 14px; color: var(--blue);\n    background: var(--blue-soft); border-radius: 10px;\n    width: 46px; height: 46px; display: flex; align-items: center; justify-content: center;\n  }\n  .step-title { min-width: 0; }\n  .step-title .name { font-size: 17px; font-weight: 600; }\n  .step-title .role { font-size: 13.5px; color: var(--muted); margin-top: 2px; }\n  .step-toggle {\n    width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--line);\n    display: flex; align-items: center; justify-content: center; color: var(--ink-2);\n    transition: transform .18s ease;\n  }\n  .step.open .step-toggle { transform: rotate(45deg); }\n  .step-body { display: none; padding: 0 20px 20px; border-top: 1px solid var(--line); }\n  .step.open .step-body { display: block; }\n  .flow-io { display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 16px; }\n  @media (min-width: 640px) {\n    .flow-io { grid-template-columns: 1fr 1fr; }\n  }\n  .io-box { border: 1px solid var(--line); border-radius: 10px; padding: 14px; }\n  .io-box .tag {\n    font-family: var(--mono); font-size: 12px; color: var(--muted); margin-bottom: 8px;\n  }\n  .io-box ul { margin: 0; padding-left: 18px; }\n  .io-box li { font-size: 14px; color: var(--ink-2); margin: 4px 0; }\n  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }\n  .chip {\n    font-size: 12.5px; border-radius: 999px; padding: 4px 10px;\n    background: var(--blue-soft); color: var(--blue);\n  }\n\n  /* 沉淀层示例 */\n  .layer { border-radius: 10px; padding: 12px 14px; margin-top: 10px; }\n  .layer .layer-title { font-size: 13px; font-weight: 600; margin-bottom: 6px; }\n  .layer .layer-body { font-size: 14px; color: var(--ink-2); }\n  .layer-aha { background: var(--orange-soft); }\n  .layer-aha .layer-title { color: var(--orange); }\n  .layer-insight { background: var(--blue-soft); }\n  .layer-insight .layer-title { color: var(--blue); }\n  .layer-question { background: var(--purple-soft); }\n  .layer-question .layer-title { color: var(--purple); }\n  .layer-step { background: var(--green-soft); }\n  .layer-step .layer-title { color: var(--green); }\n\n  /* ── Sample card ──────────────────────── */\n  .sample-card {\n    background: var(--panel); border: 1px solid var(--line);\n    border-radius: 18px; overflow: hidden;\n  }\n  .sample-header {\n    background: var(--blue); color: #fff; padding: 18px 20px;\n  }\n  .sample-header .t { font-size: 18px; font-weight: 600; }\n  .sample-header .s { font-size: 13px; opacity: .85; margin-top: 4px; }\n  .sample-body { padding: 18px 20px; display: grid; gap: 16px; }\n  .metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }\n  .metric { text-align: center; border-right: 1px solid var(--line); }\n  .metric:last-child { border-right: none; }\n  .metric .v { font-size: 22px; font-weight: 700; }\n  .metric .k { font-size: 12.5px; color: var(--muted); }\n  .ep-title { font-size: 15.5px; font-weight: 600; }\n  .ep-summary { font-size: 14px; color: var(--ink-2); margin: 6px 0; }\n  .ep-list { margin: 8px 0 0; padding-left: 18px; }\n  .ep-list li { font-size: 14px; color: var(--ink-2); margin: 4px 0; }\n  .quote { border-left: 3px solid var(--line); padding-left: 12px; color: var(--muted); font-size: 14px; margin: 10px 0; }\n  .guide { border-top: 1px solid var(--line); padding-top: 14px; }\n  .guide .g-title { font-size: 14px; font-weight: 600; margin-bottom: 8px; }\n  .guide ul { margin: 0; padding-left: 18px; }\n  .guide li { font-size: 14px; color: var(--ink-2); margin: 5px 0; }\n  .tags { margin-top: 10px; }\n  .tagline { font-size: 12.5px; color: var(--muted); }\n\n  footer { padding: 30px 0 50px; color: var(--muted); font-size: 13px; }\n\n  .toast {\n    position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%) translateY(20px);\n    background: var(--ink); color: #fff; padding: 10px 16px; border-radius: 10px;\n    font-size: 14px; opacity: 0; pointer-events: none; transition: all .2s ease;\n  }\n  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }\n</style>\n</head>\n<body>\n\n<header class=\"hero\">\n  <div class=\"wrap\">\n    <div class=\"eyebrow\">PODCLEANER · 流程演示</div>\n    <h1>把通勤听来的碎片，沉淀成可延续的知识树</h1>\n    <p class=\"lede\">\n      从一期播客到一篇结构化笔记，再到跨条目的关联脉络与下一步深耕指引。\n      下面是 Agent 的完整处理流程，点击每一步可展开它的输入、动作与产出。\n    </p>\n    <div class=\"actions\">\n      <a class=\"btn btn-primary\" href=\"#flow\">\n        <svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M5 12h14M13 6l6 6-6 6\"/></svg>\n        查看处理流程\n      </a>\n      <a class=\"btn btn-ghost\" id=\"srcLink\" href=\"#\" target=\"_blank\" rel=\"noopener\">\n        <svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M16 18l6-6-6-6M8 6l-6 6 6 6\"/></svg>\n        查看源码\n      </a>\n      <button class=\"btn btn-ghost\" id=\"copyLink\" type=\"button\">复制预览链接</button>\n    </div>\n  </div>\n</header>\n\n<main class=\"wrap\">\n  <section id=\"flow\">\n    <h2>七步处理管线</h2>\n    <p class=\"section-note\">与代码管线一致：Fetcher → Transcribe → Analyzer → Linker → Threads → Store → Briefing。</p>\n    <div class=\"pipeline\" id=\"pipeline\"></div>\n  </section>\n\n  <section>\n    <h2>样例：昨日简报卡片</h2>\n    <p class=\"section-note\">基于 <code>examples/sample_episode.json</code> 的示例数据离线还原，不含真实听众笔记。</p>\n    <div class=\"sample-card\">\n      <div class=\"sample-header\">\n        <div class=\"t\">昨日播客回顾</div>\n        <div class=\"s\">2026-11-18 · 昨日新增 1 期</div>\n      </div>\n      <div class=\"sample-body\">\n        <div class=\"metrics\">\n          <div class=\"metric\"><div class=\"v\">1</div><div class=\"k\">昨日新增</div></div>\n          <div class=\"metric\"><div class=\"v\">1</div><div class=\"k\">主题分类</div></div>\n          <div class=\"metric\"><div class=\"v\">有</div><div class=\"k\">跨条关联</div></div>\n        </div>\n\n        <div>\n          <div class=\"ep-title\">示例播客｜第 12 期：AI 时代的普通人机会</div>\n          <p class=\"ep-summary\">两位主持人讨论大模型普及后，个体如何把工具能力转化为自己的产品与内容优势，强调动手实践胜过观望。</p>\n          <ul class=\"ep-list\">\n            <li>工具迭代很快，但真正的壁垒是持续输出与领域判断</li>\n            <li>普通人可以从自己熟悉的场景切入，用 AI 放大已有经验</li>\n          </ul>\n          <div class=\"quote\">“不要等工具完美，先把你的问题讲清楚。”</div>\n\n          <div class=\"layer layer-aha\">\n            <div class=\"layer-title\">啊哈时刻</div>\n            <div class=\"layer-body\">先做出最小可用作品再迭代 → 壁垒不是想出来的，是在持续输出里长出来的</div>\n          </div>\n          <div class=\"layer layer-insight\">\n            <div class=\"layer-title\">个人启发</div>\n            <div class=\"layer-body\">先从手头最熟悉的一个场景切入，用 AI 做一个小作品，而不是继续观望工具更新（个人联想）</div>\n          </div>\n          <div class=\"layer layer-question\">\n            <div class=\"layer-title\">待解问题</div>\n            <div class=\"layer-body\">我熟悉的哪个场景最适合先用 AI 放大？——决定下一步最小作品的切入点</div>\n          </div>\n          <div class=\"layer layer-step\">\n            <div class=\"layer-title\">下一步深耕</div>\n            <div class=\"layer-body\">列 3 个自己熟悉的场景，挑一个做最小可用作品（实践 · 高优先级）</div>\n          </div>\n\n          <div class=\"tags\"><span class=\"tagline\">#大模型　#个体成长　#产品方法论</span></div>\n        </div>\n\n        <div class=\"guide\">\n          <div class=\"g-title\">知识指引</div>\n          <ul>\n            <li>待解：我熟悉的哪个场景最适合先用 AI 放大？</li>\n            <li>深耕：列 3 个自己熟悉的场景，挑一个做最小可用作品（示例播客｜第 12 期）</li>\n          </ul>\n        </div>\n      </div>\n    </div>\n  </section>\n</main>\n\n<footer>\n  <div class=\"wrap\">\n    本页面为静态演示，所有数据均为示例。外部依赖（LLM、飞书、ASR）在真实运行时以适配器接入。\n  </div>\n</footer>\n\n<div class=\"toast\" id=\"toast\">链接已复制</div>\n\n<script>\n(function () {\n  var REPO_RAW = \"https://github.com/chase1960/podcast-cleaner-agent/blob/main/docs/flow.html\";\n  var PREVIEW = \"https://htmlpreview.github.io/?https://github.com/chase1960/podcast-cleaner-agent/main/docs/flow.html\";\n\n  document.getElementById(\"srcLink\").href = REPO_RAW;\n\n  var STEPS = [\n    {\n      name: \"Fetcher 取稿\",\n      role: \"组合策略抓取节目公开内容\",\n      input: [\"播客节目名\", \"单集标题（可选）\", \"节目链接（可选）\"],\n      output: [\"节目名 / 单集标题 / URL\", \"正文内容\", \"来源类型：shownotes · web · manual · asr\"],\n      actions: [\"依次尝试 RSS feed、小宇宙页面、网页检索\", \"取不到全文时回退到粘贴文字稿\", \"音频源进入可选的 ASR 转写回退\"],\n      chips: [\"rss\", \"xiaoyuzhou\", \"web_search\", \"manual\"]\n    },\n    {\n      name: \"Transcribe 转写\",\n      role: \"音频到文字稿的可选适配层\",\n      input: [\"音频文件路径\"],\n      output: [\"可提炼的文字稿\"],\n      actions: [\"适配器接口，默认 engine=none\", \"可选 whisper 等 ASR 引擎\", \"转写失败不阻断手动稿回退\"],\n      chips: [\"asr\", \"adapter\"]\n    },\n    {\n      name: \"Analyzer 提炼\",\n      role: \"把文字稿洗成结构化笔记与个人沉淀\",\n      input: [\"文字稿\", \"可用分类清单\"],\n      output: [\"摘要 / 要点 / 金句 / 标签 / 分类\", \"啊哈时刻\", \"个人启发\", \"待解问题\", \"下一步深耕\"],\n      actions: [\"LLM 按提示词输出结构化 JSON\", \"无 LLM 时关键词分类 + 朴素摘要兜底\", \"沉淀层按配置上限截断，兼容字符串或对象条目\"],\n      chips: [\"summary\", \"tags\", \"aha\", \"questions\"]\n    },\n    {\n      name: \"Linker 关联\",\n      role: \"与历史笔记比对，生成双向关联\",\n      input: [\"当前条目\", \"历史索引中的候选条目\"],\n      output: [\"关联收听条目 + 关联理由\", \"关系类型：theme / echo / contrast / continuation / aha\", \"回写旧笔记的反向链接\"],\n      actions: [\"打分纳入分类、标签、关键词，以及顿悟 / 启发 / 问题的词重合\", \"LLM 判断真实相关性，跳过标签碰巧相同的条目\", \"无 LLM 时走关键词与沉淀词重合兜底\"],\n      chips: [\"related\", \"backlink\", \"aha\"]\n    },\n    {\n      name: \"Threads 脉络\",\n      role: \"把多条笔记聚成可延续的知识线索\",\n      input: [\"全部历史条目\"],\n      output: [\"1~3 条主题线索\", \"线索概述与归属条目\", \"沿线索共同待解的问题\"],\n      actions: [\"LLM 归纳真正有共性的主题，不硬凑标签相同的条目\", \"兜底按标签 / 沉淀词共现聚类\", \"问题去重；单条笔记不构成线索；可由配置开关关闭\"],\n      chips: [\"thread\", \"cluster\", \"open_questions\"]\n    },\n    {\n      name: \"Store 入树\",\n      role: \"写入个人知识树并维护索引\",\n      input: [\"结构化条目\", \"分类 taxonomy\"],\n      output: [\"飞书 Wiki 分类目录下的笔记\", \"或本地 Markdown 目录 + 索引 JSON\"],\n      actions: [\"按分类落目录，笔记带关联收听小节\", \"索引用于去重、关联比对与简报取数\", \"被关联的旧笔记回写反向链接\"],\n      chips: [\"wiki\", \"local markdown\", \"index\"]\n    },\n    {\n      name: \"Briefing 播报\",\n      role: \"汇总昨日条目，渲染成可读卡片\",\n      input: [\"昨日新增条目\", \"关联脉络\", \"主题线索\"],\n      output: [\"昨日回顾卡片\", \"知识指引：聚合待解问题与深耕动作\"],\n      actions: [\"按分类分组展示条目与沉淀层\", \"汇总关联脉络与主题线索\", \"把待解问题、深耕方向汇成下一步指引\"],\n      chips: [\"digest\", \"card\", \"guide\"]\n    }\n  ];\n\n  var pipeline = document.getElementById(\"pipeline\");\n\n  function el(tag, cls, text) {\n    var n = document.createElement(tag);\n    if (cls) n.className = cls;\n    if (text != null) n.textContent = text;\n    return n;\n  }\n\n  STEPS.forEach(function (step, i) {\n    var card = el(\"div\", \"step\" + (i === 0 ? \" open\" : \"\"));\n    var head = el(\"div\", \"step-head\");\n\n    var num = el(\"div\", \"step-num\", \"0\" + (i + 1));\n    var titleWrap = el(\"div\", \"step-title\");\n    titleWrap.appendChild(el(\"div\", \"name\", step.name));\n    titleWrap.appendChild(el(\"div\", \"role\", step.role));\n    var toggle = el(\"div\", \"step-toggle\", \"+\");\n\n    head.appendChild(num);\n    head.appendChild(titleWrap);\n    head.appendChild(toggle);\n\n    var body = el(\"div\", \"step-body\");\n\n    var io = el(\"div\", \"flow-io\");\n    var inBox = el(\"div\", \"io-box\");\n    inBox.appendChild(el(\"div\", \"tag\", \"输入\"));\n    var inList = el(\"ul\");\n    step.input.forEach(function (x) { inList.appendChild(el(\"li\", null, x)); });\n    inBox.appendChild(inList);\n\n    var outBox = el(\"div\", \"io-box\");\n    outBox.appendChild(el(\"div\", \"tag\", \"产出\"));\n    var outList = el(\"ul\");\n    step.output.forEach(function (x) { outList.appendChild(el(\"li\", null, x)); });\n    outBox.appendChild(outList);\n    io.appendChild(inBox);\n    io.appendChild(outBox);\n    body.appendChild(io);\n\n    var actList = el(\"ul\");\n    step.actions.forEach(function (x) { actList.appendChild(el(\"li\", null, x)); });\n    body.appendChild(actList);\n\n    var chips = el(\"div\", \"chips\");\n    step.chips.forEach(function (c) { chips.appendChild(el(\"span\", \"chip\", c)); });\n    body.appendChild(chips);\n\n    card.appendChild(head);\n    card.appendChild(body);\n    pipeline.appendChild(card);\n\n    head.addEventListener(\"click\", function () {\n      card.classList.toggle(\"open\");\n    });\n  });\n\n  var toast = document.getElementById(\"toast\");\n  var toastTimer = null;\n  function showToast(msg) {\n    toast.textContent = msg;\n    toast.classList.add(\"show\");\n    clearTimeout(toastTimer);\n    toastTimer = setTimeout(function () { toast.classList.remove(\"show\"); }, 1800);\n  }\n\n  document.getElementById(\"copyLink\").addEventListener(\"click\", function () {\n    var done = function () { showToast(\"链接已复制\"); };\n    if (navigator.clipboard && navigator.clipboard.writeText) {\n      navigator.clipboard.writeText(PREVIEW).then(done, function () { showToast(\"复制失败，请手动复制地址栏链接\"); });\n    } else {\n      var ta = document.createElement(\"textarea\");\n      ta.value = PREVIEW;\n      document.body.appendChild(ta);\n      ta.select();\n      try { document.execCommand(\"copy\"); done(); } catch (e) { showToast(\"复制失败，请手动复制\"); }\n      document.body.removeChild(ta);\n    }\n  });\n})();\n</script>\n</body>\n</html>"
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>播客清洗与知识树 Agent · 流程演示</title>
+<style>
+  :root {
+    --bg: #f7f8fa;
+    --panel: #ffffff;
+    --ink: #16202e;
+    --ink-2: #4a5566;
+    --muted: #7a8595;
+    --line: #e3e8ef;
+    --blue: #2563c9;
+    --blue-soft: #eaf1fc;
+    --teal: #0e7c86;
+    --orange: #c76a2e;
+    --orange-soft: #fbeee4;
+    --purple: #7a5ea6;
+    --purple-soft: #f0ecf7;
+    --green: #2e8b6f;
+    --green-soft: #e8f3ee;
+    --radius: 14px;
+    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB",
+      "Microsoft YaHei", "Segoe UI", sans-serif;
+    line-height: 1.6;
+    -webkit-text-size-adjust: 100%;
+  }
+  .wrap { max-width: 920px; margin: 0 auto; padding: 0 20px; }
+
+  /* ── Hero ─────────────────────────────── */
+  header.hero { padding: 56px 0 28px; }
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 13px;
+    letter-spacing: 0.08em;
+    color: var(--blue);
+    margin-bottom: 14px;
+  }
+  h1 { font-size: clamp(26px, 4vw, 38px); line-height: 1.25; margin: 0 0 14px; font-weight: 700; }
+  .lede { font-size: 16px; color: var(--ink-2); max-width: 640px; margin: 0 0 24px; }
+  .actions { display: flex; flex-wrap: wrap; gap: 12px; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    border-radius: 10px; padding: 11px 16px; font-size: 15px;
+    text-decoration: none; cursor: pointer; border: 1px solid transparent;
+  }
+  .btn-primary { background: var(--blue); color: #fff; }
+  .btn-primary:hover { background: #1d52a8; }
+  .btn-ghost { background: var(--panel); color: var(--ink); border-color: var(--line); }
+  .btn-ghost:hover { border-color: var(--muted); }
+  .btn svg { width: 16px; height: 16px; }
+
+  /* ── Section ───────────────────────────── */
+  section { padding: 28px 0; }
+  h2 { font-size: 21px; margin: 0 0 6px; }
+  .section-note { color: var(--muted); font-size: 14px; margin: 0 0 22px; }
+
+  /* ── Pipeline ──────────────────────────── */
+  .pipeline { position: relative; }
+  .step {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    margin-bottom: 14px;
+    overflow: hidden;
+  }
+  .step-head {
+    display: grid;
+    grid-template-columns: 46px 1fr auto;
+    gap: 14px; align-items: center;
+    padding: 18px 20px; cursor: pointer; user-select: none;
+  }
+  .step-head:hover { background: #fafbfc; }
+  .step-num {
+    font-family: var(--mono); font-size: 14px; color: var(--blue);
+    background: var(--blue-soft); border-radius: 10px;
+    width: 46px; height: 46px; display: flex; align-items: center; justify-content: center;
+  }
+  .step-title { min-width: 0; }
+  .step-title .name { font-size: 17px; font-weight: 600; }
+  .step-title .role { font-size: 13.5px; color: var(--muted); margin-top: 2px; }
+  .step-toggle {
+    width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--line);
+    display: flex; align-items: center; justify-content: center; color: var(--ink-2);
+    transition: transform .18s ease;
+  }
+  .step.open .step-toggle { transform: rotate(45deg); }
+  .step-body { display: none; padding: 0 20px 20px; border-top: 1px solid var(--line); }
+  .step.open .step-body { display: block; }
+  .flow-io { display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 16px; }
+  @media (min-width: 640px) {
+    .flow-io { grid-template-columns: 1fr 1fr; }
+  }
+  .io-box { border: 1px solid var(--line); border-radius: 10px; padding: 14px; }
+  .io-box .tag {
+    font-family: var(--mono); font-size: 12px; color: var(--muted); margin-bottom: 8px;
+  }
+  .io-box ul { margin: 0; padding-left: 18px; }
+  .io-box li { font-size: 14px; color: var(--ink-2); margin: 4px 0; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+  .chip {
+    font-size: 12.5px; border-radius: 999px; padding: 4px 10px;
+    background: var(--blue-soft); color: var(--blue);
+  }
+
+  /* 沉淀层示例 */
+  .layer { border-radius: 10px; padding: 12px 14px; margin-top: 10px; }
+  .layer .layer-title { font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+  .layer .layer-body { font-size: 14px; color: var(--ink-2); }
+  .layer-aha { background: var(--orange-soft); }
+  .layer-aha .layer-title { color: var(--orange); }
+  .layer-insight { background: var(--blue-soft); }
+  .layer-insight .layer-title { color: var(--blue); }
+  .layer-question { background: var(--purple-soft); }
+  .layer-question .layer-title { color: var(--purple); }
+  .layer-step { background: var(--green-soft); }
+  .layer-step .layer-title { color: var(--green); }
+
+  /* ── Sample card ──────────────────────── */
+  .sample-card {
+    background: var(--panel); border: 1px solid var(--line);
+    border-radius: 18px; overflow: hidden;
+  }
+  .sample-header {
+    background: var(--blue); color: #fff; padding: 18px 20px;
+  }
+  .sample-header .t { font-size: 18px; font-weight: 600; }
+  .sample-header .s { font-size: 13px; opacity: .85; margin-top: 4px; }
+  .sample-body { padding: 18px 20px; display: grid; gap: 16px; }
+  .metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .metric { text-align: center; border-right: 1px solid var(--line); }
+  .metric:last-child { border-right: none; }
+  .metric .v { font-size: 22px; font-weight: 700; }
+  .metric .k { font-size: 12.5px; color: var(--muted); }
+  .ep-title { font-size: 15.5px; font-weight: 600; }
+  .ep-summary { font-size: 14px; color: var(--ink-2); margin: 6px 0; }
+  .ep-list { margin: 8px 0 0; padding-left: 18px; }
+  .ep-list li { font-size: 14px; color: var(--ink-2); margin: 4px 0; }
+  .quote { border-left: 3px solid var(--line); padding-left: 12px; color: var(--muted); font-size: 14px; margin: 10px 0; }
+  .guide { border-top: 1px solid var(--line); padding-top: 14px; }
+  .guide .g-title { font-size: 14px; font-weight: 600; margin-bottom: 8px; }
+  .guide ul { margin: 0; padding-left: 18px; }
+  .guide li { font-size: 14px; color: var(--ink-2); margin: 5px 0; }
+  .tags { margin-top: 10px; }
+  .tagline { font-size: 12.5px; color: var(--muted); }
+
+  footer { padding: 30px 0 50px; color: var(--muted); font-size: 13px; }
+
+  .toast {
+    position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%) translateY(20px);
+    background: var(--ink); color: #fff; padding: 10px 16px; border-radius: 10px;
+    font-size: 14px; opacity: 0; pointer-events: none; transition: all .2s ease;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="eyebrow">PODCLEANER · 流程演示</div>
+    <h1>把通勤听来的碎片，沉淀成可延续的知识树</h1>
+    <p class="lede">
+      从一期播客到一篇结构化笔记，再到跨条目的关联脉络与下一步深耕指引。
+      下面是 Agent 的完整处理流程，点击每一步可展开它的输入、动作与产出。
+    </p>
+    <div class="actions">
+      <a class="btn btn-primary" href="#flow">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        查看处理流程
+      </a>
+      <a class="btn btn-ghost" id="srcLink" href="#" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 18l6-6-6-6M8 6l-6 6 6 6"/></svg>
+        查看源码
+      </a>
+      <button class="btn btn-ghost" id="copyLink" type="button">复制预览链接</button>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <section id="flow">
+    <h2>七步处理管线</h2>
+    <p class="section-note">与代码管线一致：Fetcher → Transcribe → Analyzer → Linker → Threads → Store → Briefing。</p>
+    <div class="pipeline" id="pipeline"></div>
+  </section>
+
+  <section>
+    <h2>样例：昨日简报卡片</h2>
+    <p class="section-note">基于 <code>examples/sample_episode.json</code> 的示例数据离线还原，不含真实听众笔记。</p>
+    <div class="sample-card">
+      <div class="sample-header">
+        <div class="t">昨日播客回顾</div>
+        <div class="s">2026-11-18 · 昨日新增 1 期</div>
+      </div>
+      <div class="sample-body">
+        <div class="metrics">
+          <div class="metric"><div class="v">1</div><div class="k">昨日新增</div></div>
+          <div class="metric"><div class="v">1</div><div class="k">主题分类</div></div>
+          <div class="metric"><div class="v">有</div><div class="k">跨条关联</div></div>
+        </div>
+
+        <div>
+          <div class="ep-title">示例播客｜第 12 期：AI 时代的普通人机会</div>
+          <p class="ep-summary">两位主持人讨论大模型普及后，个体如何把工具能力转化为自己的产品与内容优势，强调动手实践胜过观望。</p>
+          <ul class="ep-list">
+            <li>工具迭代很快，但真正的壁垒是持续输出与领域判断</li>
+            <li>普通人可以从自己熟悉的场景切入，用 AI 放大已有经验</li>
+          </ul>
+          <div class="quote">“不要等工具完美，先把你的问题讲清楚。”</div>
+
+          <div class="layer layer-aha">
+            <div class="layer-title">啊哈时刻</div>
+            <div class="layer-body">先做出最小可用作品再迭代 → 壁垒不是想出来的，是在持续输出里长出来的</div>
+          </div>
+          <div class="layer layer-insight">
+            <div class="layer-title">个人启发</div>
+            <div class="layer-body">先从手头最熟悉的一个场景切入，用 AI 做一个小作品，而不是继续观望工具更新（个人联想）</div>
+          </div>
+          <div class="layer layer-question">
+            <div class="layer-title">待解问题</div>
+            <div class="layer-body">我熟悉的哪个场景最适合先用 AI 放大？——决定下一步最小作品的切入点</div>
+          </div>
+          <div class="layer layer-step">
+            <div class="layer-title">下一步深耕</div>
+            <div class="layer-body">列 3 个自己熟悉的场景，挑一个做最小可用作品（实践 · 高优先级）</div>
+          </div>
+
+          <div class="tags"><span class="tagline">#大模型　#个体成长　#产品方法论</span></div>
+        </div>
+
+        <div class="guide">
+          <div class="g-title">知识指引</div>
+          <ul>
+            <li>待解：我熟悉的哪个场景最适合先用 AI 放大？</li>
+            <li>深耕：列 3 个自己熟悉的场景，挑一个做最小可用作品（示例播客｜第 12 期）</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    本页面为静态演示，所有数据均为示例。外部依赖（LLM、飞书、ASR）在真实运行时以适配器接入。
+  </div>
+</footer>
+
+<div class="toast" id="toast">链接已复制</div>
+
+<script>
+(function () {
+  var REPO_RAW = "https://github.com/chase1960/podcast-cleaner-agent/blob/main/docs/flow.html";
+  var PREVIEW = "https://htmlpreview.github.io/?https://github.com/chase1960/podcast-cleaner-agent/main/docs/flow.html";
+
+  document.getElementById("srcLink").href = REPO_RAW;
+
+  var STEPS = [
+    {
+      name: "Fetcher 取稿",
+      role: "组合策略抓取节目公开内容",
+      input: ["播客节目名", "单集标题（可选）", "节目链接（可选）"],
+      output: ["节目名 / 单集标题 / URL", "正文内容", "来源类型：shownotes · web · manual · asr"],
+      actions: ["依次尝试 RSS feed、小宇宙页面、网页检索", "取不到全文时回退到粘贴文字稿", "音频源进入可选的 ASR 转写回退"],
+      chips: ["rss", "xiaoyuzhou", "web_search", "manual"]
+    },
+    {
+      name: "Transcribe 转写",
+      role: "音频到文字稿的可选适配层",
+      input: ["音频文件路径"],
+      output: ["可提炼的文字稿"],
+      actions: ["适配器接口，默认 engine=none", "可选 whisper 等 ASR 引擎", "转写失败不阻断手动稿回退"],
+      chips: ["asr", "adapter"]
+    },
+    {
+      name: "Analyzer 提炼",
+      role: "把文字稿洗成结构化笔记与个人沉淀",
+      input: ["文字稿", "可用分类清单"],
+      output: ["摘要 / 要点 / 金句 / 标签 / 分类", "啊哈时刻", "个人启发", "待解问题", "下一步深耕"],
+      actions: ["LLM 按提示词输出结构化 JSON", "无 LLM 时关键词分类 + 朴素摘要兜底", "沉淀层按配置上限截断，兼容字符串或对象条目"],
+      chips: ["summary", "tags", "aha", "questions"]
+    },
+    {
+      name: "Linker 关联",
+      role: "与历史笔记比对，生成双向关联",
+      input: ["当前条目", "历史索引中的候选条目"],
+      output: ["关联收听条目 + 关联理由", "关系类型：theme / echo / contrast / continuation / aha", "回写旧笔记的反向链接"],
+      actions: ["打分纳入分类、标签、关键词，以及顿悟 / 启发 / 问题的词重合", "LLM 判断真实相关性，跳过标签碰巧相同的条目", "无 LLM 时走关键词与沉淀词重合兜底"],
+      chips: ["related", "backlink", "aha"]
+    },
+    {
+      name: "Threads 脉络",
+      role: "把多条笔记聚成可延续的知识线索",
+      input: ["全部历史条目"],
+      output: ["1~3 条主题线索", "线索概述与归属条目", "沿线索共同待解的问题"],
+      actions: ["LLM 归纳真正有共性的主题，不硬凑标签相同的条目", "兜底按标签 / 沉淀词共现聚类", "问题去重；单条笔记不构成线索；可由配置开关关闭"],
+      chips: ["thread", "cluster", "open_questions"]
+    },
+    {
+      name: "Store 入树",
+      role: "写入个人知识树并维护索引",
+      input: ["结构化条目", "分类 taxonomy"],
+      output: ["飞书 Wiki 分类目录下的笔记", "或本地 Markdown 目录 + 索引 JSON"],
+      actions: ["按分类落目录，笔记带关联收听小节", "索引用于去重、关联比对与简报取数", "被关联的旧笔记回写反向链接"],
+      chips: ["wiki", "local markdown", "index"]
+    },
+    {
+      name: "Briefing 播报",
+      role: "汇总昨日条目，渲染成可读卡片",
+      input: ["昨日新增条目", "关联脉络", "主题线索"],
+      output: ["昨日回顾卡片", "知识指引：聚合待解问题与深耕动作"],
+      actions: ["按分类分组展示条目与沉淀层", "汇总关联脉络与主题线索", "把待解问题、深耕方向汇成下一步指引"],
+      chips: ["digest", "card", "guide"]
+    }
+  ];
+
+  var pipeline = document.getElementById("pipeline");
+
+  function el(tag, cls, text) {
+    var n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (text != null) n.textContent = text;
+    return n;
+  }
+
+  STEPS.forEach(function (step, i) {
+    var card = el("div", "step" + (i === 0 ? " open" : ""));
+    var head = el("div", "step-head");
+
+    var num = el("div", "step-num", "0" + (i + 1));
+    var titleWrap = el("div", "step-title");
+    titleWrap.appendChild(el("div", "name", step.name));
+    titleWrap.appendChild(el("div", "role", step.role));
+    var toggle = el("div", "step-toggle", "+");
+
+    head.appendChild(num);
+    head.appendChild(titleWrap);
+    head.appendChild(toggle);
+
+    var body = el("div", "step-body");
+
+    var io = el("div", "flow-io");
+    var inBox = el("div", "io-box");
+    inBox.appendChild(el("div", "tag", "输入"));
+    var inList = el("ul");
+    step.input.forEach(function (x) { inList.appendChild(el("li", null, x)); });
+    inBox.appendChild(inList);
+
+    var outBox = el("div", "io-box");
+    outBox.appendChild(el("div", "tag", "产出"));
+    var outList = el("ul");
+    step.output.forEach(function (x) { outList.appendChild(el("li", null, x)); });
+    outBox.appendChild(outList);
+    io.appendChild(inBox);
+    io.appendChild(outBox);
+    body.appendChild(io);
+
+    var actList = el("ul");
+    step.actions.forEach(function (x) { actList.appendChild(el("li", null, x)); });
+    body.appendChild(actList);
+
+    var chips = el("div", "chips");
+    step.chips.forEach(function (c) { chips.appendChild(el("span", "chip", c)); });
+    body.appendChild(chips);
+
+    card.appendChild(head);
+    card.appendChild(body);
+    pipeline.appendChild(card);
+
+    head.addEventListener("click", function () {
+      card.classList.toggle("open");
+    });
+  });
+
+  var toast = document.getElementById("toast");
+  var toastTimer = null;
+  function showToast(msg) {
+    toast.textContent = msg;
+    toast.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { toast.classList.remove("show"); }, 1800);
+  }
+
+  document.getElementById("copyLink").addEventListener("click", function () {
+    var done = function () { showToast("链接已复制"); };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(PREVIEW).then(done, function () { showToast("复制失败，请手动复制地址栏链接"); });
+    } else {
+      var ta = document.createElement("textarea");
+      ta.value = PREVIEW;
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand("copy"); done(); } catch (e) { showToast("复制失败，请手动复制"); }
+      document.body.removeChild(ta);
+    }
+  });
+})();
+</script>
+</body>
+</html>
