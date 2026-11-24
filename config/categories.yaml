@@ -21,3 +21,11 @@ default_category: 其他
 
 # 每条笔记最多关联的历史条目数
 max_related_per_episode: 3
+
+# 个人沉淀层：单条笔记内各类结构的保留上限
+max_aha_per_episode: 3
+max_open_questions: 3
+max_next_steps: 3
+
+# 是否在简报中生成跨条目「主题脉络」（知识线索）
+enable_threads: true
